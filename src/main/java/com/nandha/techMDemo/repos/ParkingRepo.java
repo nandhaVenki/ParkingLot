@@ -1,4 +1,4 @@
-package com.nandha.techMDemo.pojos;
+package com.nandha.techMDemo.repos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,12 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import com.nandha.techMDemo.pojos.Slot;
+import com.nandha.techMDemo.pojos.Vehicle;
+import com.nandha.techMDemo.pojos.parkingResponse;
+import com.nandha.techMDemo.service.ParkingServiceImpl;
+
 @Component
-public class Parking {
+public class ParkingRepo {
 	
 	private List<String> levels;
 	private List<Integer> slots;
@@ -21,7 +28,9 @@ public class Parking {
 	
 	private Integer noOfSlots = 5;
 	
-	public Parking(){
+	Logger logger = LoggerFactory.getLogger(ParkingRepo.class);
+	
+	public ParkingRepo(){
 		allocated = new TreeMap<Slot,Vehicle>();
 		List<String> levels = new ArrayList<String>();
 		levels.add("L1");
@@ -91,25 +100,38 @@ public class Parking {
 	
 
 	public parkingResponse park(Vehicle ve,Slot slot) {
-		parkingResponse ret = new parkingResponse();
-		allocated.put(slot, ve);
-		Boolean isParked = allocated.get(slot).equals(ve);
-		parkingLot.put(slot, isParked);
-		ret.setIsParked(isParked);
-		ret.setSlot(slot);
-		ret.setVehicle(allocated.get(slot));
-		return ret;
+		try {
+			parkingResponse ret = new parkingResponse();
+			allocated.put(slot, ve);
+			Boolean isParked = allocated.get(slot).equals(ve);
+			parkingLot.put(slot, isParked);
+			ret.setIsParked(isParked);
+			ret.setSlot(slot);
+			ret.setVehicle(allocated.get(slot));
+			logger.info("Vehicle " + ve.toString() + " is parked in Slot " + slot.toString());
+			return ret;
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return new parkingResponse(false,null,null,"Error occured");
+		
 	}
 
 
 	public boolean clearSlot(Slot slot) {
-		boolean isCleared = false;
-		parkingLot.put(slot, false);
-		allocated.put(slot, null);
-		if( parkingLot.get(slot) == false && (allocated.get(slot) == null) ) {
-			isCleared = true;
+		try{
+			boolean isCleared = false;
+			parkingLot.put(slot, false);
+			allocated.put(slot, null);
+			if( parkingLot.get(slot) == false && (allocated.get(slot) == null) ) {
+				isCleared = true;
+			logger.info("Slot " + slot.toString() + " is cleared");	
+			}
+			return isCleared;
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
-		return isCleared;
+		return false;
 	}
 
 }

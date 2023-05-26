@@ -49,5 +49,10 @@ public class Vehicle {
 		return Objects.equals(company, other.company) && Objects.equals(number, other.number)
 				&& Objects.equals(type, other.type);
 	}
+
+	@Override
+	public String toString() {
+		return "Vehicle [number=" + number + ", type=" + type + ", company=" + company + "]";
+	}
 	
 }
